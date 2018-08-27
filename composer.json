@@ -1,0 +1,26 @@
+{
+    "name": "dking3876/php-to-typescript",
+    "description": "Convert your PHP classes to Typescript",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Deryk W. King",
+            "email": "dking3876@msn.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=7.0",
+        "nikic/php-parser": "^4.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.5 || ^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "PhpToTypescript\\": "src/"
+        }
+    },
+    "bin": ["bin/php-to-script"]
+}
