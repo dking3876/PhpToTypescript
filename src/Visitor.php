@@ -108,9 +108,7 @@ class Visitor extends \PhpParser\NodeVisitorAbstract
                 //does the match end with [] if so remove [] and make it Array<this>
                 if (strpos($t, '[]') !== false) {
                     $t = substr($t, 0, -2);
-                    if ($t == 'mixed') {
-                        $t = 'any';
-                    }
+                    $t = Helpers\TypeConverter::findTypescriptType($t);
                     $result = "Array<" . $t . ">";
                 } else{
                     $result = Helpers\TypeConverter::findTypescriptType($t);
