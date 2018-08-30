@@ -27,4 +27,7 @@ class CreateTicket
      * @var string
      */
     public $help;
+
+    /** @var User */
+    public $again;
 }

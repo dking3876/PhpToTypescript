@@ -11,10 +11,11 @@ class TypeConverter{
     private static $TypeMap = [
         'mixed'     => 'any',
         'int'       => 'number',
+        'integer'   => 'number',
         'float'     => 'number',
         'array'     => 'Array<any>',
         'bool'      => 'boolean',
-        'string'    => 'string',
+        'string'    => 'string'
     ];
 
     /**
