@@ -60,7 +60,9 @@ class Visitor extends \PhpParser\NodeVisitorAbstract
                 $method = $node;
 
                 if ($method->isPublic()) {
-                    $this->currentInterface->methods[] = new TypeScript\Method_($method->name, $method->getParams(), $method->getReturnType());
+                    $params = $method->getParams();
+                    $returnType = $method->getReturnType();
+                    $this->currentInterface->methods[] = new TypeScript\Method_($method->name, $params, $returnType);
                 }
             }
         }

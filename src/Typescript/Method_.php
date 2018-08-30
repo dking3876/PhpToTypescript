@@ -1,6 +1,7 @@
 <?php 
 namespace PhpToTypescript\Typescript;
 class Method_{
+    /** @var string  */
     public $name;
     /**
      * @var Param[]
@@ -9,17 +10,15 @@ class Method_{
 
     /** @var string */
     public $return;
-    public function __construct($name, $params, $return = null)
+    public function __construct(string $name, $params, $return = null)
     {
         $this->name = $name;
         $this->params = $params;
-        // var_dump($params, $params[0]->getDocComment());
         $this->return = $return;
     }
 
     public function __toString()
     {
-        // TODO: Implement __toString() method.
         $result = "abstract {$this->name}(";
         $result .= implode(",", array_map(function ($p){
             $type = "";
