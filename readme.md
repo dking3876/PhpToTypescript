@@ -1,19 +1,19 @@
-##Php To Typescript
+## Php To Typescript
 
 ### Author
 
 Deryk William King <dking3876@msn.com>
 
-###Requirements 
+### Requirements 
 
 - Php 7.x
 - Composer
 
-###Installation
+### Installation
 
 Install the PhpToTypescript package `composer require dking3876/PhpToTypescript`
 
-###Instructions
+### Instructions
 
 This package will convert a folder of models and create typescript file structure matching the source with abstract classes for each one. You will need to modify the files with any appropriate import statements (import {User} from './User' ).  
 Create a php script with the following code.
