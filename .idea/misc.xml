@@ -5,6 +5,7 @@
       <usages-collector id="statistics.php.composer.actions">
         <counts>
           <entry key="install_from_ProjectViewPopup" value="1" />
+          <entry key="updateAll_from_ProjectViewPopup" value="1" />
         </counts>
       </usages-collector>
     </session>

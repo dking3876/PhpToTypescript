@@ -1,6 +1,6 @@
 <?php 
 namespace PhpToTypescript\Helpers;
-class TypeMapper{
+class TypeConverter{
     static $termMaps = [
         'mixed'     => 'any',
         'int'       => 'number',
@@ -11,6 +11,6 @@ class TypeMapper{
         'mixed'     => 'any'
     ];
     public static function findTypescriptType($phpTerm){
-        return self::$termMaps[$phpTerm]?: '';
+        return self::$termMaps[$phpTerm]?: $phpTerm;
     }
 }

@@ -112,20 +112,8 @@ class Visitor extends \PhpParser\NodeVisitorAbstract
                         $t = 'any';
                     }
                     $result = "Array<" . $t . ">";
-                } elseif ($t === "int") {
-                    $result = "number";
-                } elseif ($t === "float") {
-                    $result = "number";
-                } elseif ($t === 'array') {
-                    $result = "Array<any>";
-                } elseif ($t === "bool") {
-                    $result = "boolean";
-                } elseif ($t === "string") {
-                    $result = "string";
-                } elseif ($t === 'mixed') {
-                    $result = "any";
-                } else {
-                    $result = $t;
+                } else{
+                    $result = Helpers\TypeConverter::findTypescriptType($t);
                 }
             }
         }

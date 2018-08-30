@@ -25,10 +25,12 @@ class Method_{
             if(isset($p->type)){
                 $type = $p->type->name;
             }
+            $type = \PhpToTypescript\Helpers\TypeConverter::findTypescriptType($type);
             return  " " .(string)$p->var->name.':'.$type;}, $this->params)
         );
         if($this->return) {
-            $result .= "):{$this->return}";
+            $returnType = \PhpToTypescript\Helpers\TypeConverter::findTypescriptType($this->return->name);
+            $result .= "):{$returnType};";
         }
 
         return $result;
