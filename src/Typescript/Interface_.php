@@ -1,5 +1,5 @@
 <?php 
-namespace PhpToTypescripe\Typescript;
+namespace PhpToTypescript\Typescript;
 use PhpParser\Node\Param;
 class Interface_
     {
