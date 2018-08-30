@@ -1,121 +1,144 @@
-<?php 
+<?php
+
 namespace PhpToTypescript;
-
+use PhpToTypescript\Typescript;
+/**
+ * Class Visitor
+ * @package PhpToTypescript
+ */
 class Visitor extends \PhpParser\NodeVisitorAbstract
+{
+    /**
+     * @var bool
+     */
+    private $isActive = false;
+
+    /** @var TypeScript\Interface_[] */
+    private $output = [];
+
+    /** @var TypeScript\Interface_ */
+    public $currentInterface;
+
+    /**
+     * @var
+     */
+    public $className;
+
+
+    /**
+     * @param \PhpParser\Node $node
+     * @return int|null|\PhpParser\Node|void
+     */
+    public function enterNode(\PhpParser\Node $node)
     {
-        private $isActive = false;
+        if ($node instanceof \PhpParser\Node\Stmt\Class_) {
 
-        /** @var TypeScript\Interface_[] */
-        private $output = [];
-
-        /** @var TypeScript\Interface_ */
-        public $currentInterface;
-
-        public $className;
-
-
-        public function enterNode(Node $node)
-        {
-            if ($node instanceof \PhpParser\Node\Stmt\Class_) {
-
-                /** @var PhpParser\Node\Stmt\Class_ $class */
-                $class = $node;
-                $this->className = $class->name;
-                // If there is "@TypeScriptMe" in the class phpDoc, then ...
-                if ($class->getDocComment() && strpos($class->getDocComment()->getText(), "@TypeScriptMe") !== false) {
-                    $this->isActive = true;
-                    $this->output[] = $this->currentInterface = new TypeScript\Interface_($class->name);
-                }
+            /** @var \PhpParser\Node\Stmt\Class_ $class */
+            $class = $node;
+            $this->className = $class->name;
+            // If there is "@TypeScriptMe" in the class phpDoc, then ...
+            if ($class->getDocComment() && strpos($class->getDocComment()->getText(), "@TypeScriptMe") !== false) {
+                $this->isActive = true;
+                $this->output[] = $this->currentInterface = new TypeScript\Interface_($class->name);
             }
-            if ($this->isActive) {
-                if ($node instanceof \PhpParser\Node\Stmt\Property) {
-                    /** @var \PhpParser\Node\Stmt\Property $property */
-                    $property = $node;
+        }
+        if ($this->isActive) {
+            if ($node instanceof \PhpParser\Node\Stmt\Property) {
+                /** @var \PhpParser\Node\Stmt\Property $property */
+                $property = $node;
 
-                    if ($property->isPublic()) {
-                        $type = $this->parsePhpDocForProperty($property->getDocComment());
-                        $isOptional = $this->parsePhpDocForOptional($property->getDocComment());
-                        $this->currentInterface->properties[] = new TypeScript\Property_($property->props[0]->name, $type, $isOptional);
-                    }
-                }else{
+                if ($property->isPublic()) {
+                    $type = $this->parsePhpDocForProperty($property->getDocComment());
+                    $isOptional = $this->parsePhpDocForOptional($property->getDocComment());
+                    $this->currentInterface->properties[] = new TypeScript\Property_($property->props[0]->name, $type, $isOptional);
+                }
+            } else {
 //                    var_dump($node );
-                }
-                if ($node instanceof \PhpParser\Node\Stmt\ClassMethod) {
-                    /** @var \PhpParser\Node\Stmt\ClassMethod $method */
-                    $method = $node;
-                    
-                   if($method->isPublic()){
-                       $this->currentInterface->methods[] = new TypeScript\Method_($method->name, $method->getParams(), $method->getReturnType());
-                   }
-                }  
             }
-        }
+            if ($node instanceof \PhpParser\Node\Stmt\ClassMethod) {
+                /** @var \PhpParser\Node\Stmt\ClassMethod $method */
+                $method = $node;
 
-        public function leaveNode(Node $node)
-        {
-            if ($node instanceof \PhpParser\Node\Stmt\Class_) {
-                $this->isActive = false;
-            }
-        }
-                /**
-         * @param \PhpParser\Comment|null $phpDoc
-         */
-        private function parsePhpDocForOptional($phpDoc):bool{
-
-            if ($phpDoc !== null) {
-                if(strpos($phpDoc->getText(), 'optional') !== false){
-                    return true;
+                if ($method->isPublic()) {
+                    $this->currentInterface->methods[] = new TypeScript\Method_($method->name, $method->getParams(), $method->getReturnType());
                 }
             }
-            return false;
         }
-        /**
-         * @param \PhpParser\Comment|null $phpDoc
-         */
-        private function parsePhpDocForProperty($phpDoc)
-        {
-            $result = "any";
+    }
 
-            if ($phpDoc !== null) {
-                if (preg_match('/@var[ \t]+([a-z0-9\[\]]+)/i', $phpDoc->getText(), $matches)) {
-                    $t = trim($matches[1]);
-                    
-                    //does the match end with [] if so remove [] and make it Array<this>
-                    if(strpos($t, '[]') !== false){
-                        $t = substr($t, 0, -2);
-                        if($t == 'mixed'){
-                            $t = 'any';
-                        }
-                        $result = "Array<".$t.">";
+    /**
+     * @param \PhpParser\Node $node
+     * @return int|null|\PhpParser\Node|\PhpParser\Node[]|void
+     */
+    public function leaveNode(\PhpParser\Node $node)
+    {
+        if ($node instanceof \PhpParser\Node\Stmt\Class_) {
+            $this->isActive = false;
+        }
+    }
+
+    /**
+     * @param \PhpParser\Comment|null $phpDoc
+     * @return bool
+     */
+    private function parsePhpDocForOptional($phpDoc): bool
+    {
+
+        if ($phpDoc !== null) {
+            if (strpos($phpDoc->getText(), 'optional') !== false) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param \PhpParser\Comment|null $phpDoc
+     */
+    private function parsePhpDocForProperty($phpDoc)
+    {
+        $result = "any";
+
+        if ($phpDoc !== null) {
+            if (preg_match('/@var[ \t]+([a-z0-9\[\]]+)/i', $phpDoc->getText(), $matches)) {
+                $t = trim($matches[1]);
+
+                //does the match end with [] if so remove [] and make it Array<this>
+                if (strpos($t, '[]') !== false) {
+                    $t = substr($t, 0, -2);
+                    if ($t == 'mixed') {
+                        $t = 'any';
                     }
-                    elseif ($t === "int") {
-                        $result = "number";
-                    }
-                    elseif($t === "float"){
-                        $result = "number";
-                    }
-                    elseif($t === 'array'){
-                        $result = "Array<any>";
-                    }
-                    elseif($t === "bool"){
-                        $result = "boolean";
-                    }
-                    elseif ($t === "string") {
-                        $result = "string";
-                    }elseif($t === 'mixed'){
-                        $result = "any";
-                    }else{
-                        $result = $t;
-                    }
+                    $result = "Array<" . $t . ">";
+                } elseif ($t === "int") {
+                    $result = "number";
+                } elseif ($t === "float") {
+                    $result = "number";
+                } elseif ($t === 'array') {
+                    $result = "Array<any>";
+                } elseif ($t === "bool") {
+                    $result = "boolean";
+                } elseif ($t === "string") {
+                    $result = "string";
+                } elseif ($t === 'mixed') {
+                    $result = "any";
+                } else {
+                    $result = $t;
                 }
             }
-
-            return $result;
         }
 
-        public function getOutput()
-        {
-            return implode("\n\n", array_map(function ($i) { return (string)$i;}, $this->output));
-        }
+        return $result;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOutput()
+    {
+        return implode("\n\n", array_map(function ($i) {
+            return (string)$i;
+        }, $this->output));
+    }
 }
     

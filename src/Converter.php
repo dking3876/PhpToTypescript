@@ -1,15 +1,60 @@
 <?php 
 namespace PhpToTypescript;
 ini_set('display_errors', 1);
-$loader = require __dir__.'/../vendor/autoload.php'; //@todo add definitions to composer file for
-$loader->addPsr4('kanban\\api\\', __DIR__.'/../app'); //define  where to look for this once i properly namespace it
+
 
 
 use PhpParser;
 use PhpParser\Node;
 class Converter{
 
-    function getDirContents($dir, &$results = array()){
+    private $path;
+    private $masterPathParts;
+    private $files;
+    private $root;
+    private static $instance = null;
+    private function __construct($pathToModels)
+    {
+        $this->path = $pathToModels;
+        $this->masterPathParts = explode(DIRECTORY_SEPARATOR, $this->path);
+        $this->files = $this->getDirContents($this->path);
+    }
+
+    public static function convert($pathToModels){
+        $instance = new self($pathToModels);
+        $t = debug_backtrace();
+        $rootParts = explode(DIRECTORY_SEPARATOR, $t[0]['file']);
+        array_pop($rootParts);
+        $instance->root = $root = implode(DIRECTORY_SEPARATOR, $rootParts);
+        $instance->readAndWriteNewFiles();
+
+    }
+
+    /**
+     *
+     */
+    private function readAndWriteNewFiles()
+    {
+        foreach ($this->files as $file) {
+            $result = $this->convertToTypescript($file['path']);
+            $my_file = $file['basename'];
+            $pathParts = array_diff($file['pathParts'], $this->masterPathParts);
+            array_pop($pathParts);
+            $newPath = implode(DIRECTORY_SEPARATOR, $pathParts);
+            //   var_dump($newPath);
+            try {
+                if (!\file_exists($this->root.'/convert/'. $newPath)) {
+                    mkdir($this->root.'/convert/' . $newPath, null, true);
+                }
+
+            } catch (\Exception $e) {
+
+            }
+            $handle = fopen($this->root.'/convert/' . $newPath . DIRECTORY_SEPARATOR . $result['className'] . '.ts', 'w') or die('Cannot open file:  ' . $my_file);
+            fwrite($handle, $result['code']);
+        }
+    }
+    private function getDirContents($dir, &$results = array()){
 
         $directory = new \RecursiveDirectoryIterator($dir);
         foreach(new \RecursiveIteratorIterator($directory) as $filename => $current){
@@ -27,7 +72,7 @@ class Converter{
         return $results;
     }
 
-    function convertToTypescript($filePath){
+    private function convertToTypescript($filePath){
         $parser = new \PhpParser\Parser\Php7(new PhpParser\Lexer\Emulative);
         $traverser = new \PhpParser\NodeTraverser;
         $visitor = new Visitor;
@@ -35,6 +80,7 @@ class Converter{
     
         try {
             // @todo Get files from a folder recursively
+            var_dump($filePath);
            $code = file_get_contents($filePath);
     
 
@@ -51,28 +97,5 @@ class Converter{
             echo 'Parse Error: ', $e->getMessage();
         }
     }
-   
-}
- ### Start of the main part
- $masterPath = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'app/model';
- $masterPathParts = explode(DIRECTORY_SEPARATOR, $masterPath);
- // var_dump($masterPathParts);
- $files = \MyParser\getDirContents($masterPath);
- foreach($files as $file){
-   $result = convertToTypescript($file['path']);
-   $my_file = $file['basename'];
-   $pathParts = array_diff($file['pathParts'],$masterPathParts);
-   array_pop($pathParts);
-   $newPath = implode(DIRECTORY_SEPARATOR, $pathParts );
-     //   var_dump($newPath);
-     try{
-         if(!\file_exists(__DIR__.'/../convert/'.$newPath)){
-             mkdir(__DIR__.'/../convert/'.$newPath, null, true);
-         }
-         
-     }catch(\Exception $e){
 
-     }
-   $handle = fopen(__DIR__.'/../convert/'.$newPath.DIRECTORY_SEPARATOR.$result['className'].'.ts', 'w') or die('Cannot open file:  '.$my_file);
-   fwrite($handle, $result['code']);
  }
