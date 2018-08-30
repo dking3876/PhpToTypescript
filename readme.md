@@ -1,5 +1,7 @@
 ## Php To Typescript
 
+This package will convert your php classes into abstract class in typescript.  All classes will be appended by an underscore(_) and should be extended in a concrete class.
+
 ### Author
 
 Deryk William King <dking3876@msn.com>
