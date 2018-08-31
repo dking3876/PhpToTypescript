@@ -24,9 +24,9 @@ class Method_{
             $type = "";
             if(isset($p->type)){
                 $type = $p->type->name;
+                $type = ':'.\PhpToTypescript\Helpers\TypeConverter::findTypescriptType($type);
             }
-            $type = \PhpToTypescript\Helpers\TypeConverter::findTypescriptType($type);
-            return  " " .(string)$p->var->name.':'.$type;}, $this->params)
+            return  " " .(string)$p->var->name.$type;}, $this->params)
         );
         if($this->return) {
             $returnType = \PhpToTypescript\Helpers\TypeConverter::findTypescriptType($this->return->name);
