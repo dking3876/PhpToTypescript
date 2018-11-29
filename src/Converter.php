@@ -68,7 +68,7 @@ class Converter{
             //   var_dump($newPath);
             try {
                 if (!\file_exists($this->root.'/convert/'. $newPath)) {
-                    mkdir($this->root.'/convert/' . $newPath, null, true);
+                    mkdir($this->root.'/convert/' . $newPath, fileperms($this->root), true);
                 }
 
             } catch (\Exception $e) {
